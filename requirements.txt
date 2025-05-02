@@ -1,11 +1,10 @@
-
 fastapi
 uvicorn
 sqlalchemy
 cx_Oracle
 python-dotenv
-pydantic
-
-python-jose[cryptography]
+pydantic[email]
 passlib[bcrypt]
+python-multipart
+email-validator
 pytest
