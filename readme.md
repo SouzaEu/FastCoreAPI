@@ -26,21 +26,12 @@ Inclui sistema completo de autenticação JWT, CRUD para todas as entidades do b
 pip install -r requirements.txt
 ```
 
-### 2. Configure o `.env` com os dados do Oracle:
-```dotenv
-ORACLE_USER=seu_usuario
-ORACLE_PASS=sua_senha
-ORACLE_HOST=localhost
-ORACLE_PORT=1521
-ORACLE_SID=XE
-```
-
-### 3. Execute o projeto:
+### 2. Execute o projeto:
 ```bash
 uvicorn app.main:app --reload
 ```
 
-### 4. Acesse:
+### 3. Acesse:
 - Swagger UI: http://127.0.0.1:8000/docs
 - Redoc: http://127.0.0.1:8000/redoc
 
