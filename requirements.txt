@@ -1,0 +1,11 @@
+
+fastapi
+uvicorn
+sqlalchemy
+cx_Oracle
+python-dotenv
+pydantic
+
+python-jose[cryptography]
+passlib[bcrypt]
+pytest
