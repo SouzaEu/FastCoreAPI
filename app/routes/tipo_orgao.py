@@ -1,5 +1,6 @@
+from app.services.auth_service import get_current_user_by_role
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import Depends,  APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.models.database import SessionLocal
 from app.models.tables import TipoOrgao
@@ -12,6 +13,7 @@ class TipoOrgaoSchema(BaseModel):
     class Config:
         orm_mode = True
 
+@router.get("/check-admin", dependencies=[Depends(get_current_user_by_role("ADMIN"))])
 def get_db():
     db = SessionLocal()
     try:
@@ -20,10 +22,12 @@ def get_db():
         db.close()
 
 @router.get("/", response_model=List[TipoOrgaoSchema])
+@router.get("/check-admin", dependencies=[Depends(get_current_user_by_role("ADMIN"))])
 def listar(db: Session = Depends(get_db)):
     return db.query(TipoOrgao).all()
 
 @router.post("/", response_model=TipoOrgaoSchema)
+@router.get("/check-admin", dependencies=[Depends(get_current_user_by_role("ADMIN"))])
 def criar(data: TipoOrgaoSchema, db: Session = Depends(get_db)):
     novo = TipoOrgao(**data.dict())
     db.add(novo)
@@ -32,6 +36,7 @@ def criar(data: TipoOrgaoSchema, db: Session = Depends(get_db)):
     return novo
 
 @router.put("/{id_tipo}", response_model=TipoOrgaoSchema)
+@router.get("/check-admin", dependencies=[Depends(get_current_user_by_role("ADMIN"))])
 def atualizar(id_tipo: int, dados: TipoOrgaoSchema, db: Session = Depends(get_db)):
     registro = db.query(TipoOrgao).filter_by(id_tipo=id_tipo).first()
     if not registro:
@@ -42,6 +47,7 @@ def atualizar(id_tipo: int, dados: TipoOrgaoSchema, db: Session = Depends(get_db
     return registro
 
 @router.delete("/{id_tipo}")
+@router.get("/check-admin", dependencies=[Depends(get_current_user_by_role("ADMIN"))])
 def deletar(id_tipo: int, db: Session = Depends(get_db)):
     registro = db.query(TipoOrgao).filter_by(id_tipo=id_tipo).first()
     if not registro:

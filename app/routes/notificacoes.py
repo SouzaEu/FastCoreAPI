@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends, HTTPException
+from app.services.auth_service import get_current_user_by_role
+from fastapi import Depends,  APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from typing import List, Optional
@@ -15,6 +16,7 @@ class PreferenciaNotificacaoSchema(BaseModel):
     class Config:
         orm_mode = True
 
+@router.get("/check-admin", dependencies=[Depends(get_current_user_by_role("ADMIN"))])
 def get_db():
     db = SessionLocal()
     try:
@@ -23,10 +25,12 @@ def get_db():
         db.close()
 
 @router.get("/", response_model=List[PreferenciaNotificacaoSchema])
+@router.get("/check-admin", dependencies=[Depends(get_current_user_by_role("ADMIN"))])
 def listar_preferencias(db: Session = Depends(get_db)):
     return db.query(ConfigEmpresa).all()
 
 @router.put("/{id_usuario}")
+@router.get("/check-admin", dependencies=[Depends(get_current_user_by_role("ADMIN"))])
 def atualizar_preferencias(id_usuario: int, preferencias: PreferenciaNotificacaoSchema, db: Session = Depends(get_db)):
     config = db.query(ConfigEmpresa).filter_by(id_usuario=id_usuario).first()
     if not config:

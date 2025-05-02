@@ -22,7 +22,13 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
     if not user or not auth_service.verify_password(form_data.password, user.senha_hash):
         raise HTTPException(status_code=401, detail="Credenciais inválidas")
     token = auth_service.create_access_token(data={"sub": user.email})
-    return {"access_token": token, "token_type": "bearer"}
+    refresh_token = auth_service.create_refresh_token(data={"sub": user.email})
+    return {
+        "access_token": token,
+        "refresh_token": refresh_token,
+        "token_type": "bearer",
+        "perfil": user.perfil
+    }
 
 from fastapi import Body
 

@@ -1,5 +1,6 @@
+from app.services.auth_service import get_current_user_by_role
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import Depends,  APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.models.database import SessionLocal
 from app.models.tables import ConfigEmpresa
@@ -20,6 +21,7 @@ class EmpresaSchema(BaseModel):
     class Config:
         orm_mode = True
 
+@router.get("/check-admin", dependencies=[Depends(get_current_user_by_role("ADMIN"))])
 def get_db():
     db = SessionLocal()
     try:
@@ -28,10 +30,12 @@ def get_db():
         db.close()
 
 @router.get("/", response_model=List[EmpresaSchema])
+@router.get("/check-admin", dependencies=[Depends(get_current_user_by_role("ADMIN"))])
 def listar_empresas(db: Session = Depends(get_db)):
     return db.query(ConfigEmpresa).all()
 
 @router.post("/", response_model=EmpresaSchema)
+@router.get("/check-admin", dependencies=[Depends(get_current_user_by_role("ADMIN"))])
 def criar_empresa(empresa: EmpresaSchema, db: Session = Depends(get_db)):
     nova = ConfigEmpresa(**empresa.dict())
     db.add(nova)

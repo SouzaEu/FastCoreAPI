@@ -56,3 +56,27 @@ def require_admin(usuario: Usuario = Depends(get_current_user)):
     if usuario.perfil != "ADMIN":
         raise HTTPException(status_code=403, detail="Acesso restrito a administradores.")
     return usuario
+
+
+def create_refresh_token(data: dict):
+    expire = datetime.utcnow() + timedelta(days=7)
+    to_encode = data.copy()
+    to_encode.update({"exp": expire})
+    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+
+# (Opcional) Blacklist de tokens - usar Redis ou banco de dados
+# def is_token_blacklisted(jti: str) -> bool:
+#     return jti in BLACKLISTED_TOKENS
+
+
+def get_current_user_by_role(required_role: str):
+    def role_checker(token: str = Depends(oauth2_scheme)):
+        try:
+            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+            user_role = payload.get("perfil")
+            if user_role != required_role:
+                raise HTTPException(status_code=403, detail="Acesso negado: perfil insuficiente.")
+            return payload
+        except JWTError:
+            raise HTTPException(status_code=401, detail="Token inválido.")
+    return role_checker

@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends, HTTPException
+from app.services.auth_service import get_current_user_by_role
+from fastapi import Depends,  APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from typing import List, Optional
@@ -38,6 +39,7 @@ class FaturaSchema(BaseModel):
         orm_mode = True
 
 # ====== Dependência ======
+@router.get("/check-padrao", dependencies=[Depends(get_current_user_by_role("PADRAO"))])
 def get_db():
     db = SessionLocal()
     try:
@@ -47,10 +49,12 @@ def get_db():
 
 # ====== ASSINATURA ======
 @router.get("/assinaturas", response_model=List[AssinaturaSchema])
+@router.get("/check-padrao", dependencies=[Depends(get_current_user_by_role("PADRAO"))])
 def listar_assinaturas(db: Session = Depends(get_db)):
     return db.query(Assinatura).all()
 
 @router.post("/assinaturas", response_model=AssinaturaSchema)
+@router.get("/check-padrao", dependencies=[Depends(get_current_user_by_role("PADRAO"))])
 def criar_assinatura(data: AssinaturaSchema, db: Session = Depends(get_db)):
     nova = Assinatura(**data.dict())
     db.add(nova)
@@ -60,10 +64,12 @@ def criar_assinatura(data: AssinaturaSchema, db: Session = Depends(get_db)):
 
 # ====== MÉTODO DE PAGAMENTO ======
 @router.get("/metodos", response_model=List[MetodoPagamentoSchema])
+@router.get("/check-padrao", dependencies=[Depends(get_current_user_by_role("PADRAO"))])
 def listar_metodos(db: Session = Depends(get_db)):
     return db.query(MetodoPagamento).all()
 
 @router.post("/metodos", response_model=MetodoPagamentoSchema)
+@router.get("/check-padrao", dependencies=[Depends(get_current_user_by_role("PADRAO"))])
 def criar_metodo(data: MetodoPagamentoSchema, db: Session = Depends(get_db)):
     novo = MetodoPagamento(**data.dict())
     db.add(novo)
@@ -73,10 +79,12 @@ def criar_metodo(data: MetodoPagamentoSchema, db: Session = Depends(get_db)):
 
 # ====== FATURAS ======
 @router.get("/faturas", response_model=List[FaturaSchema])
+@router.get("/check-padrao", dependencies=[Depends(get_current_user_by_role("PADRAO"))])
 def listar_faturas(db: Session = Depends(get_db)):
     return db.query(Fatura).all()
 
 @router.post("/faturas", response_model=FaturaSchema)
+@router.get("/check-padrao", dependencies=[Depends(get_current_user_by_role("PADRAO"))])
 def criar_fatura(data: FaturaSchema, db: Session = Depends(get_db)):
     nova = Fatura(**data.dict())
     db.add(nova)
